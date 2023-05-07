@@ -6,33 +6,35 @@ class TypeService {
     }
     extractTypeData(payload) {
         const type = {
-            general_name: payload.general_name,
-            specific_name: payload.specific_name,
-            created_date: payload.created_date,
+            name: payload.name,
+            image: {
+                img_data: payload.path,
+                img_name: payload.filename
+            },
+            date_created: payload.date_created,
         };
         Object.keys(type).forEach(
             (key) => type[key] === undefined && delete type[key]
         );
 
+        Object.keys(type.image).forEach(
+            (key) => type.image[key] === undefined && delete type.image[key]
+        );
+        if (Object.keys(type.image).length == 0) { delete type.image };
+
         return type;
     }
 
     async find(filter) {
-        const cursor = await this.Type.find(filter);
+        const cursor = await this.Type.find(filter).sort({ "date_created": -1 });
         return await cursor.toArray();
     }
 
-    async findByGeneralName(generalName) {
+    async findByName(name) {
         const cursor = await this.Type.find({
-            general_name: { $regex: new RegExp(generalName), $options: "i" },
+            name: { $regex: new RegExp(name)},
         });
         return await cursor.toArray();
-    }
-
-    async findBySpecificName(specificName) {
-        return await this.Type.findOne({
-            specific_name: { $regex: new RegExp(specificName), $options: "i" },
-        });
     }
 
     async findById(id) {
@@ -48,7 +50,7 @@ class TypeService {
             type,
             {
                 $set: {
-                    created_date: new Date().toLocaleString("vi-VN", {
+                    date_created: new Date().toLocaleString("vi-VN", {
                         timeZone: "Asia/Ho_Chi_Minh",
                     }),
                 }
@@ -67,7 +69,7 @@ class TypeService {
             filter,
             { $set: {
                 ...update,
-                created_date: new Date().toLocaleString("vi-VN", {
+                date_created: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
             } },

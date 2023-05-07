@@ -8,7 +8,7 @@ class ToppingService {
         const topping = {
             name: payload.name,
             price: (payload.price) ? parseInt(payload.price) : payload.price,
-            created_date: payload.created_date,
+            date_created: payload.date_created,
         };
         Object.keys(topping).forEach(
             (key) => topping[key] === undefined && delete topping[key]
@@ -18,7 +18,7 @@ class ToppingService {
     }
 
     async find(filter) {
-        const cursor = await this.Topping.find(filter);
+        const cursor = await this.Topping.find(filter).sort({ "date_created": -1 });
         return await cursor.toArray();
     }
 
@@ -42,7 +42,7 @@ class ToppingService {
             topping,
             {
                 $set: {
-                    created_date: new Date().toLocaleString("vi-VN", {
+                    date_created: new Date().toLocaleString("vi-VN", {
                         timeZone: "Asia/Ho_Chi_Minh",
                     }),
                 }
@@ -61,7 +61,7 @@ class ToppingService {
             filter,
             { $set: {
                 ...update,
-                created_date: new Date().toLocaleString("vi-VN", {
+                date_created: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
             } },
